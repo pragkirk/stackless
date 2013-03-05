@@ -1,0 +1,136 @@
+<project name="Comp" default="usage" basedir=".">
+
+	<property name="felix" location="${basedir}/felix"/>
+	<property name="modules" location="${basedir}/modules"/>
+	<property name="load" location="${basedir}/felix/load"/>
+	<property name="loan" location="${basedir}/loan/bin"/>
+	<property name="scala" location="${basedir}/loan/scala"/>
+	<property name="web" location="${basedir}/web"/>
+	<property name="stats" location="${basedir}/stats"/>
+	<property name="version" value="1.0"/>
+	
+	<target name="usage">
+		<echo message="Script to build platform."/>
+		<echo message="************ Use the following deployment targets ***************"/>
+		<echo message="deploy.fileinstall --> sets up the auto-deploy feature. Must run before any other targets."/>
+		<echo message="deploy.spring      --> deploys spring."/>
+		<echo message="deploy.loan        --> deploys loan."/>
+		<echo message="deploy.loan-client --> deploys dummy loan client."/>
+		<echo message="deploy.scala       --> deploys scala."/>
+		<echo message="deploy.scala-calc  --> deploys scala calculator."/>
+		<echo message="deploy.web         --> deploys web app (access using http://localhost:8080/html/loan.html."/>
+		<echo message="deploy.web-env     --> deploys full web environment, except for web application."/>
+		<echo message=""/>
+		<echo message="************ Use the following un-deployment targets ***************"/>
+		<echo message="undeploy.web         --> Undeploys web app."/>
+		<echo message="undeploy.loan-client --> Undeploys dummy loan client."/>
+		<echo message=""/>
+		<echo message="************ Use the following restore targets ***************"/>
+		<echo message="felix.restore --> Restores to clean Felix install."/>
+		
+	</target>
+	
+	<target name="clean" description="clean up">
+		<delete dir="${stats}"/>
+	</target>
+	
+	<target name="init" depends="clean">
+		<mkdir dir="${stats}"/>
+	</target>
+	
+	<target name="deploy.fileinstall">
+		<mkdir dir="${load}"/>
+		<echo message="Load directory created."/>
+	</target>
+	
+	<target name="deploy.jetty">
+		<copy file="${modules}/felixhttpjetty.jar" todir="${load}"/>
+	</target>
+	
+	<target name="deploy.spring">
+		<copy file="${modules}/com.springsource.org.aopalliance-1.0.0.jar" todir="${load}"/>
+		<copy file="${modules}/com.springsource.slf4j.api-1.5.0.jar" todir="${load}"/>
+		<copy file="${modules}/com.springsource.slf4j.log4j-1.5.0.jar" todir="${load}"/>
+		<copy file="${modules}/com.springsource.slf4j.org.apache.commons.logging-1.5.0.jar" todir="${load}"/>
+		<copy file="${modules}/log4j.osgi-1.2.15-SNAPSHOT.jar" todir="${load}"/>
+		<copy file="${modules}/org.springframework.aop-2.5.6.SEC01.jar" todir="${load}"/>
+		<copy file="${modules}/org.springframework.beans-2.5.6.SEC01.jar" todir="${load}"/>
+		<copy file="${modules}/org.springframework.context-2.5.6.SEC01.jar" todir="${load}"/>
+		<copy file="${modules}/org.springframework.core-2.5.6.SEC01.jar" todir="${load}"/>
+		<copy file="${modules}/spring-osgi-core-1.2.1.jar" todir="${load}"/>
+		<copy file="${modules}/spring-osgi-extender-1.2.1.jar" todir="${load}"/>
+		<copy file="${modules}/spring-osgi-io-1.2.1.jar" todir="${load}"/>
+	</target>
+	
+	<target name="deploy.loan">
+		<copy file="${loan}/loan-intrfc-1.0.jar" todir="${load}"/>
+		<copy file="${loan}/loan-impl-1.0.jar" todir="${load}"/>
+		<copy file="${loan}/calc-impl-1.0.jar" todir="${load}"/>
+		<copy file="${loan}/loanfacade-1.0.jar" todir="${load}"/>
+	</target>
+	
+	<target name="deploy.loan-client">
+		<copy file="${loan}/dclient-1.0.jar" todir="${load}"/>
+	</target>
+	
+	<target name="deploy.scala">
+		<copy file="${scala}/lib/org.scala-ide.scala.library_2.8.0.final-p0002.jar" todir="${load}"/>
+	</target>
+	
+	<target name="deploy.scala-calc">
+		<copy file="${scala}/bin/calc-impl-scala-1.0.jar" todir="${load}"/>
+	</target>
+	
+	<target name="deploy.web">
+		<copy file="${web}/lib/gson-2.2.2.jar" todir="${load}"/>
+		<copy file="${web}/bin/web.jar" todir="${load}"/>
+	</target>
+	
+	<target name="felix.restore">
+		<delete dir="${felix}/felix-cache"/>
+		<delete dir="${felix}/load"/>
+	</target>
+	
+	<target name="deploy.web-env">
+		<antcall target="deploy.fileinstall"/>
+		<antcall target="deploy.spring"/>
+		<antcall target="deploy.loan"/>
+		<antcall target="deploy.jetty"/>
+	</target>
+	
+	<target name="undeploy.web">
+		<delete file="${load}/web.jar"/>
+	</target>
+	
+	<target name="undeploy.loan-client">
+		<delete file="${load}/dclient-1.0.jar"/>
+	</target>
+	
+	<target name="analyzer">
+
+        <taskdef name="jaranalyzer" classname="com.kirkk.analyzer.textui.JarAnalyzerTask">
+            <classpath>
+                <pathelement path="${lib}/jaranalyzer-1.2.jar"/>
+                <pathelement path="${lib}/lib/bcel-5.2.jar"/>
+                <pathelement path="${lib}/lib/jakarta-regexp-1.3.jar"/>
+                <pathelement path="${lib}/lib"/>
+            </classpath>
+        </taskdef>
+        <jaranalyzer srcdir="${bindist}" destfile="${buildstats}/dependencies.xml" 
+				summaryclass="com.kirkk.analyzer.textui.XMLUISummary" />
+				
+		<style in="${buildstats}/dependencies.xml" 
+		       out="${buildstats}/dependencies.html"
+			style="${lib}/jaranalyzer.xsl">	
+		</style>
+
+		<style in="${buildstats}/dependencies.xml" 
+		    out="${buildstats}/dependencies.grph"
+			style="${lib}/jaranalyzer2dot.xsl">	
+		</style>
+
+		<exec executable="dot" ><arg line="-Tpng -Nshape=box -Nfontsize=30 -Nwidth=1.5 -Nheight=1.25 ./buildstats/dependencies.grph -o ./buildstats/dependencies.png"/></exec>
+
+	</target>
+	
+</project>

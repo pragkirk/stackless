@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Hello Service Consumer
+Bundle-SymbolicName: helloweb
+Bundle-Version: 1.0.0
+Bundle-Activator: com.extensiblejava.hello.web.Activator
+Import-Package: javax.servlet,
+ javax.servlet.http,
+ org.osgi.framework,
+ org.osgi.service.http,
+ com.google.gson,
+ com.extensiblejava.loan,
+ com.extensiblejava.facade

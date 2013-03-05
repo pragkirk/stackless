@@ -1,0 +1,41 @@
+<project name="Proof" default="dist.web" basedir=".">
+
+	<property name="web.src" location="${basedir}/src"/>
+	<property name="web.build" location="${basedir}/build"/>
+	<property name="lib" location="${basedir}/lib"/>
+	<property name="bin" location="${basedir}/bin"/>
+	<property name="version" value="1.0"/>
+	
+	<target name="clean" description="clean up">
+		<delete dir="${bin}"/>
+		<delete dir="${web.build}"/>
+	</target>
+	
+	<target name="init" depends="clean">
+		<tstamp/>
+		<mkdir dir="${web.build}"/>
+		<mkdir dir="${bin}"/>
+	</target>
+	
+	<target name="compile.web" depends="init">
+		<javac srcdir="${web.src}" destdir="${web.build}">
+			<classpath>
+				<pathelement path="${web.src}"/>
+				<pathelement location="${lib}/felixhttpjetty.jar"/>
+				<pathelement location="${lib}/osgi.core.jar"/>
+				<pathelement location="${lib}/gson-2.2.2.jar"/>
+				<pathelement location="${lib}/loanfacade-1.0.jar"/>
+				<pathelement location="${lib}/loan-intrfc-1.0.jar"/>
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="dist.web" depends="compile.web">
+		<copy file="${basedir}/hello.html" todir="${web.build}/html"/>
+		<copy file="${basedir}/goodbye.html" todir="${web.build}/html"/>
+		<copy file="${basedir}/loan.html" todir="${web.build}/html"/>
+		<copy file="${basedir}/style.css" todir="${web.build}/html"/>
+		<jar jarfile="${bin}/web.jar" basedir="${web.build}" manifest="${basedir}/META-INF/Manifest.mf"/>
+	</target>
+	
+</project>

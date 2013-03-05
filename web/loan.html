@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="viewport" content="width=device-width, maximum-scale=1, user-scalable=no">
+    <title>Loan Calculator</title>
+    <!-- Styles -->
+    
+    <link rel="stylesheet" href="./style.css">
+    
+    
+    <!-- /Styles -->
+    <!-- Javascripts -->
+    
+    <script type="text/javascript">
+		function main() { }
+		
+		var billIDs;
+		var currBillID;
+		smallscreen = screen.width < 600;
+		var backPage = "bill-search";
+		
+		function calculateLoan() {		
+			var scriptTag = document.createElement('SCRIPT');
+			var principle = document.getElementById("principle").value;
+			var term = document.getElementById("term").value;
+			var rate = document.getElementById("rate").value;
+			var url = "http://localhost:8080/loan?principle=" + principle + "&term=" + term + "&rate=" + rate;
+			
+			xmlhttp = new XMLHttpRequest();
+			xmlhttp.onload = function() {
+				//alert(this.responseText);
+				jsonResponse = this.responseText;
+				pmt = JSON.parse(jsonResponse);
+				
+				document.getElementById('monthlypayment').innerHTML=pmt.payment;
+				document.getElementById('loan-output').style.visibility='visibility';
+			}
+			xmlhttp.open("GET", url, true);
+			xmlhttp.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+			xmlhttp.send(null);
+			
+		}
+	</script>
+    
+    
+    <!-- /Javascripts -->
+</head>
+<body>
+	<div id="header">
+		<ul>
+    		<li><a href="#" onClick="backtosearch()" id="search-nav" title="Search">Go Back</a></li>
+		</ul>
+	</div>
+	<div id="pages">
+		<div id="loan-inputs">
+			<h1>Loan Calculator</h1>
+			<p>Enter Principle: <input type="text" id="principle"/></p>
+			<p>Enter Term: <input type="text" id="term"/></p>
+			<p>Enter Rate: <input type="text" id="rate"/></p>
+			<p>Monthly Payment: <span id="monthlypayment"></p>
+			<div id="button" onClick="calculateLoan();">Calculate Loan
+			</div>
+		</div>
+	</div>
+  
+  <script>main()</script>
+</body>
+</html>
